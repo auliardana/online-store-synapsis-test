@@ -1,0 +1,19 @@
+version: '1.0'
+
+services:
+    postgres:
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+            POSTGRES_DB: ${DB_NAME}
+        ports:
+            - ${DB_PORT}:${DB_PORT}
+
+    api:
+        build: .
+        restart: always
+        ports:
+            - ${DEV_PORT}:${DEV_PORT}
+        depends_on:
+            - postgres

@@ -13,10 +13,22 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/golang-jwt/jwt/v5"
-
 	// "online-store/utils"
 )
 
+// register is a method to sign customer up
+// @Summary Create an account
+// @Description Create an account with its name and its optional description, worksets, resources, and services. Worksets, resources, and services can be added to user with UUID/UUIDs
+// @Tags auth
+// @Accept  json
+// @Produce json
+// @Param   auth body model.UserRegisterRequest true "user need to login"
+// @Success 201 {object} model.UserRegisterResponse
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Failure 409 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Router /register [post]
 func Register(c *gin.Context) {
 	var userRequest model.UserRegisterRequest
 
@@ -42,9 +54,11 @@ func Register(c *gin.Context) {
 	}
 
 	user := model.User{
-		Username: userRequest.Username,
-		Email:    userRequest.Email,
-		Password: string(hash),
+		FirstName: userRequest.FirstName,
+		LastName:  userRequest.LastName,
+		Phone:     userRequest.Phone,
+		Email:     userRequest.Email,
+		Password:  string(hash),
 	}
 
 	tx := db.DBConn.Begin()
@@ -57,8 +71,9 @@ func Register(c *gin.Context) {
 	tx.Commit()
 
 	userResponse := model.UserResponse{
-		Username: user.Username,
+		Fullname: user.FirstName + " " + user.LastName,
 		Email:    user.Email,
+		Phone:    user.Phone,
 	}
 
 	c.JSON(http.StatusOK, model.UserRegisterResponse{
@@ -68,6 +83,20 @@ func Register(c *gin.Context) {
 
 }
 
+//	login is a method to sign customer in
+//
+// @Summary login
+// @Description login with email and password
+// @Tags auth
+// @Accept  json
+// @Produce json
+// @Param   auth body model.UserLoginRequest true "user need to login"
+// @Success 201 {object} model.UserLoginResponse
+// @Failure 400 {object} model.ErrorResponse
+// @Failure 401 {object} model.ErrorResponse
+// @Failure 409 {object} model.ErrorResponse
+// @Failure 500 {object} model.ErrorResponse
+// @Router /login [post]
 func Login(c *gin.Context) {
 	var userRequest model.UserLoginRequest
 
@@ -94,8 +123,8 @@ func Login(c *gin.Context) {
 
 	// Generate a JWT token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
-		"exp": time.Now().Add(time.Minute * 1).Unix(), // satu menit
+		"user_id": user.ID,
+		"exp":     time.Now().Add(time.Hour * 24).Unix(), // satu menit
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
@@ -111,8 +140,9 @@ func Login(c *gin.Context) {
 	c.SetCookie("Authorization", tokenString, 3600*24*30, "", "", false, true)
 
 	userResponse := model.UserResponse{
-		Username: user.Username,
+		Fullname: user.FirstName + " " + user.LastName,
 		Email:    user.Email,
+		Phone:    user.Phone,
 	}
 
 	c.JSON(http.StatusOK, model.UserLoginResponse{
@@ -152,3 +182,19 @@ func Login(c *gin.Context) {
 // 	json.NewEncoder(w).Encode(TokenResponse{AccessToken: newAccessToken})
 // }
 
+func GetAllUser(c *gin.Context) {
+	var users []model.User
+
+	if err := db.DBConn.Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "can't find users.",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Users found",
+		"users":   users,
+	})
+}

@@ -6,14 +6,22 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+
+	_ "online-store/docs"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetupRouter() *gin.Engine {
 
+	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
 	//cors
 	r.Use(cors.Default())
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	v1 := r.Group("/api/v1")
 
 	r.GET("/", func(c *gin.Context) {
@@ -27,6 +35,9 @@ func SetupRouter() *gin.Engine {
 
 	//login
 	v1.POST("/login", controller.Login)
+
+	//get all user
+	v1.GET("/users", controller.GetAllUser)
 
 	authRoutes := v1.Group("/auth")
 	authRoutes.Use(middleware.RequireAuth)
@@ -43,6 +54,13 @@ func SetupRouter() *gin.Engine {
 		authRoutes.GET("/cart", controller.GetAllCart)
 		authRoutes.POST("/cart", controller.CreateCart)
 		authRoutes.DELETE("/cart/:id", controller.DeleteCartByID)
+
+		//order
+		authRoutes.GET("/order", controller.GetAllOrder)
+
+		//checkout
+		authRoutes.POST("/order", controller.CheckoutOrder)
+
 	}
 
 	return r

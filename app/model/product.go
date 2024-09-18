@@ -33,20 +33,6 @@ type ProductResponse struct {
 	Data    ProductRequest `json:"data"`
 }
 
-type ProductUpdateRequest struct {
-	Name        string `json:"name"`
-	Price       int    `json:"price"`
-	Stock       int    `json:"stock"`
-	Description string `json:"description"`
-}
-
-type ProductUpdateResponse struct {
-	ID          uuid.UUID `json:"id"`
-	Name        string    `json:"name"`
-	Price       int       `json:"price"`
-	Stock       int       `json:"stock"`
-	Description string    `json:"description"`
-}
 
 type ProductDeleteResponse struct {
 	Message string `json:"message"`

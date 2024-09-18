@@ -1,0 +1,547 @@
+basePath: /api/v1
+definitions:
+  model.CartRequest:
+    properties:
+      product_id:
+        description: UserID    string `json:"user_id" binding:"required"`
+        type: string
+      quantity:
+        type: integer
+    required:
+    - product_id
+    - quantity
+    type: object
+  model.CartResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  model.ErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  model.OrderRequest:
+    properties:
+      product_id:
+        description: UserID    string `json:"user_id" binding:"required"`
+        type: string
+      quantity:
+        type: integer
+    required:
+    - product_id
+    - quantity
+    type: object
+  model.OrderResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  model.ProductCategoryRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  model.ProductCategoryResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+    type: object
+  model.ProductRequest:
+    properties:
+      category_id:
+        type: string
+      description:
+        type: string
+      image_url:
+        description: URL gambar produk
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      stock:
+        type: integer
+    required:
+    - category_id
+    - description
+    - name
+    - price
+    - stock
+    type: object
+  model.ProductResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.ProductRequest'
+      message:
+        type: string
+    type: object
+  model.UserLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  model.UserLoginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.UserResponse'
+      token:
+        type: string
+    type: object
+  model.UserRegisterRequest:
+    properties:
+      email:
+        type: string
+      firstname:
+        type: string
+      lastname:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+    required:
+    - email
+    - firstname
+    - lastname
+    - password
+    - phone
+    type: object
+  model.UserRegisterResponse:
+    properties:
+      data:
+        $ref: '#/definitions/model.UserResponse'
+      message:
+        type: string
+    type: object
+  model.UserResponse:
+    properties:
+      email:
+        type: string
+      fullname:
+        type: string
+      phone:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: synapsis.id test
+  termsOfService: http://swagger.io/terms/
+  title: API Documentation for online-store rest api
+  version: "1.0"
+paths:
+  /cart:
+    get:
+      description: get a list of all products that have been added to the shopping
+        cart
+      parameters:
+      - default: Bearer 'Add access token here'
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CartResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: see a list of products that have been added to the shopping cart
+      tags:
+      - Cart
+    post:
+      consumes:
+      - application/json
+      description: Add product to cart
+      parameters:
+      - default: Bearer 'Add access token here'
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: cart need product_id and quantity
+        in: body
+        name: cart
+        required: true
+        schema:
+          $ref: '#/definitions/model.CartRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created successfully
+          schema:
+            $ref: '#/definitions/model.CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Add product to cart
+      tags:
+      - Cart
+  /cart/{id}:
+    delete:
+      description: Delete a product by id
+      parameters:
+      - default: Bearer 'Add access token here'
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: cart ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.CartResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Delete a product cart by id
+      tags:
+      - Cart
+  /category:
+    get:
+      description: Get a list of all product categories
+      parameters:
+      - default: Bearer 'Add access token here'
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ProductCategoryResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: view product list by product category
+      tags:
+      - Category
+    post:
+      consumes:
+      - application/json
+      description: create category
+      parameters:
+      - default: Bearer 'Add access token here'
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: cart need name of category
+        in: body
+        name: productCategory
+        required: true
+        schema:
+          $ref: '#/definitions/model.ProductCategoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created successfully
+          schema:
+            $ref: '#/definitions/model.ProductCategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: create category
+      tags:
+      - Category
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: login with email and password
+      parameters:
+      - description: user need to login
+        in: body
+        name: auth
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.UserLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: login
+      tags:
+      - auth
+  /order:
+    post:
+      consumes:
+      - application/json
+      description: Create a role with its name and its optional description, worksets,
+        resources, and services. Worksets, resources, and services can be added to
+        user with UUID/UUIDs
+      parameters:
+      - default: Bearer 'Add access token here'
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Create Order
+        in: body
+        name: orders
+        required: true
+        schema:
+          $ref: '#/definitions/model.OrderRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.OrderResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Create a payment order
+      tags:
+      - Order
+  /products:
+    get:
+      description: Get a list of all roles
+      parameters:
+      - default: Bearer 'Add access token here'
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - default: "1"
+        description: page number
+        in: query
+        name: page
+        type: string
+      - default: "10"
+        description: 'minimum/maximum number of roles returned (min: 10, max: 100)'
+        in: query
+        name: limit
+        type: string
+      - description: 'you can sort by category, ex: ''/api/v1/auth/products?category=<category_id>'' '
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ProductResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: view product list by product category
+      tags:
+      - Product
+    post:
+      consumes:
+      - application/json
+      description: create product
+      parameters:
+      - default: Bearer 'Add access token here'
+        description: Insert your access token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: cart need product_id and quantity
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/model.ProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: created successfully
+          schema:
+            $ref: '#/definitions/model.ProductResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: create product
+      tags:
+      - Product
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Create an account with its name and its optional description, worksets,
+        resources, and services. Worksets, resources, and services can be added to
+        user with UUID/UUIDs
+      parameters:
+      - description: user need to login
+        in: body
+        name: auth
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.UserRegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Create an account
+      tags:
+      - auth
+swagger: "2.0"

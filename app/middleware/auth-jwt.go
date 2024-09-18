@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -11,50 +12,86 @@ import (
 )
 
 func RequireAuth(c *gin.Context) {
-	// Get the cookie off the request
-	tokenString, err := c.Cookie("Authorization")
-
-	if err != nil {
-		//error response
+	// Ambil token dari header Authorization
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
+			"message": "Authorization header is missing",
 		})
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.Abort()
+		return
 	}
 
-	// Decode/validate it
-	token, _ := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Don't forget to validate the alg is what you expect:
+	// Token harus menggunakan skema "Bearer {token}"
+	tokenParts := strings.Split(authHeader, " ")
+	if len(tokenParts) != 2 || tokenParts[0] != "Bearer" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Authorization header format must be Bearer {token}",
+		})
+		c.Abort()
+		return
+	}
+
+	tokenString := tokenParts[1]
+
+	// Parse dan validasi token
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Validasi metode signing token
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		// Chec k the expiry date
-		if float64(time.Now().Unix()) > claims["exp"].(float64) {
-			c.AbortWithStatus(http.StatusUnauthorized)
+		// Ambil secret key dari environment
+		secretKey := os.Getenv("JWT_SECRET")
+		if secretKey == "" {
+			return nil, fmt.Errorf("secret key is not set in environment variables")
 		}
 
-		// // Find the user with token Subject
-		// var user model.User
-		// if err := db.DBConn.First(&user, claims["sub"]).Error; err != nil {
-		// 	c.AbortWithStatus(http.StatusUnauthorized)
-		// }
+		return []byte(secretKey), nil
+	})
 
-		// // Attach the request
-		// c.Set("user",user)
-
-		//Continue
-		c.Next()
-	} else {
+	// Jika token tidak valid atau terjadi error
+	if err != nil || !token.Valid {
 		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "unauthorized",
+			"message": "Invalid or expired token",
 		})
-		c.AbortWithStatus(http.StatusUnauthorized)
-
+		c.Abort()
+		return
 	}
+
+	// Ambil claims dari token
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Invalid token claims",
+		})
+		c.Abort()
+		return
+	}
+
+	// Cek apakah token sudah expired
+	exp, ok := claims["exp"].(float64)
+	if !ok || float64(time.Now().Unix()) > exp {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "Token has expired",
+		})
+		c.Abort()
+		return
+	}
+
+	// Ambil user_id dari claims (diasumsikan user_id adalah string)
+	userID, ok := claims["user_id"].(string)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "Invalid user ID format",
+		})
+		c.Abort()
+		return
+	}
+
+	// Simpan user_id ke dalam context Gin
+	c.Set("user_id", userID)
+
+	// Lanjut ke handler berikutnya
+	c.Next()
 }

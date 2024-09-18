@@ -14,3 +14,8 @@ type ProductCategory struct {
 type ProductCategoryRequest struct {
 	Name string `json:"name" binding:"required"`
 }
+
+type ProductCategoryResponse struct {
+	Message string `json:"message"`
+	Data    any    `json:"data"`
+}

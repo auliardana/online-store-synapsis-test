@@ -34,7 +34,13 @@ type Order struct {
 // 	Price    int `gorm:"not null"`
 // }
 
+type OrderRequest struct {
+	// UserID    string `json:"user_id" binding:"required"`
+	ProductID string `json:"product_id" binding:"required"`
+	Quantity  int    `json:"quantity" binding:"required"`
+}
 
-
-
-
+type OrderResponse struct {
+	Message string `json:"message"`
+	Data    any    `json:"data"`
+}
