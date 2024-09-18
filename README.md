@@ -26,9 +26,12 @@ $ docker compose up -d
 |                 | */api/v1/auth/product*     | *POST*     |
 |                 | */api/v1/auth/product*     | *GET*      |
 | **Cart**        |                            |            |
-|                 | */api/v1/cart*             | *POST*     |
-|                 | */api/v1/cart*             | *GET*      |
-|                 | */api/v1/cart/:id*         | *DELETE*   |
+|                 | */api/v1/auth/cart*        | *POST*     |
+|                 | */api/v1/auth/cart*        | *GET*      |
+|                 | */api/v1/auth/cart/:id*    | *DELETE*   |
+| **Category**    |                            |            |
+|                 | */api/v1/auth/category*    | *POST*     |
+|                 | */api/v1/auth/category*    | *GET*      |
 | **order**       |                            |            |
 |                 | */api/v1/order*            | *POST*     |
 |                 | */api/v1/order*            | *GET*      |
