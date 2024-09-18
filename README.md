@@ -29,6 +29,13 @@ To build and start the containers:
 
 ```sh
 $ docker-compose up -d
+```
+
+To access API documentation:
+
+```sh
+http://localhost:8080/swagger/index.html#/
+```
 
 ## Endpoint
 
