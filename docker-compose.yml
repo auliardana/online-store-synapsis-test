@@ -8,12 +8,14 @@ services:
             POSTGRES_PASSWORD: ${DB_PASSWORD}
             POSTGRES_DB: ${DB_NAME}
         ports:
-            - ${DB_PORT}:${DB_PORT}
+            - 5432:5432
 
     api:
+        image: auliardanaa/online-store-api:be-online-store-api
+        container_name: be-online-store-api
         build: .
         restart: always
         ports:
-            - ${DEV_PORT}:${DEV_PORT}
+            - 8080:8080
         depends_on:
             - postgres
